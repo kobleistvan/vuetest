@@ -54,7 +54,7 @@ export default {
     };
   },
   methods: {
-    // Connects to bitstamp, subscribes to 3 channels of live trade rates & handles messages from them
+    // Connects to bitstamp, subscribes to 3 channels of live trade rates
     connectToSocket() {
       const wsUrl = "wss://ws.bitstamp.net.";
       this.connectionState = `Connecting to bitstamp... (${wsUrl})`;
@@ -91,30 +91,35 @@ export default {
       });
 
       // Listen for messages
-      mySocket.addEventListener("message", event => {
-        console.log("Message from server ", event.data);
-        const data = JSON.parse(event.data);
-        console.log("Message from server ", data.data.timestamp);
-        switch (data.channel) {
-          case "live_trades_ethusd":
-            this.ethUsd.push([data.data.timestamp, data.data.price]);
-            this.chart.series[0].setData(this.ethUsd);
-            this.latestEthUsdValue = data.data.price;
-            break;
-          case "live_trades_btcusd":
-            this.btcUsd.push([data.data.timestamp, data.data.price]);
-            this.chart.series[1].setData(this.btcUsd);
-            this.latestBtcUsdValue = data.data.price;
-            break;
-          case "live_trades_btceur":
-            this.btcEur.push([data.data.timestamp, data.data.price]);
-            this.chart.series[2].setData(this.btcEur);
-            this.latestBtcEurValue = data.data.price;
-            break;
-        }
-        this.chart.redraw();
-        this.lastMessage = event.data;
-      });
+      mySocket.addEventListener("message", event =>
+        this.handleSocketResponses(event)
+      );
+    },
+
+    // Handles response messages from bitstamp for the live exchange rate channels
+    handleSocketResponses(event) {
+      console.log("Message from server ", event.data);
+      const data = JSON.parse(event.data);
+      console.log("Message from server ", data.data.timestamp);
+      switch (data.channel) {
+        case "live_trades_ethusd":
+          this.ethUsd.push([data.data.timestamp, data.data.price]);
+          this.chart.series[0].setData(this.ethUsd);
+          this.latestEthUsdValue = data.data.price;
+          break;
+        case "live_trades_btcusd":
+          this.btcUsd.push([data.data.timestamp, data.data.price]);
+          this.chart.series[1].setData(this.btcUsd);
+          this.latestBtcUsdValue = data.data.price;
+          break;
+        case "live_trades_btceur":
+          this.btcEur.push([data.data.timestamp, data.data.price]);
+          this.chart.series[2].setData(this.btcEur);
+          this.latestBtcEurValue = data.data.price;
+          break;
+      }
+      this.chart.redraw();
+      this.lastMessage = event.data;
     },
 
     // Draws the chart for the live trades
