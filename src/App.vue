@@ -100,23 +100,20 @@ export default {
         const data = JSON.parse(event.data);
         console.log("Message from server ", data.data.timestamp);
         switch (data.channel) {
-          case "live_trades_btcusd":
-            this.btcUsd.push([data.data.timestamp, data.data.price]);
-            // this.chart.series[0].data = this.btcUsd;
-            // this.chart.redraw();
-            break;
           case "live_trades_ethusd":
             this.ethUsd.push([data.data.timestamp, data.data.price]);
-            // this.chart.series[0].data = this.btcUsd;
-            // this.chart.redraw();
+            this.chart.series[0].setData(this.ethUsd);
+            break;
+          case "live_trades_btcusd":
+            this.btcUsd.push([data.data.timestamp, data.data.price]);
+            this.chart.series[1].setData(this.btcUsd);
             break;
           case "live_trades_btceur":
             this.btcEur.push([data.data.timestamp, data.data.price]);
-            // this.chart.series[0].data = this.btcUsd;
-            // this.chart.redraw();
+            this.chart.series[2].setData(this.btcEur);
             break;
         }
-        this.drawChart();
+        this.chart.redraw();
         this.lastMessage = event.data;
       });
     },
