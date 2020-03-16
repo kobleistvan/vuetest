@@ -9,26 +9,22 @@
         <table id="ratesTable">
           <thead>
             <tr>
-              <th>Currency</th>
-              <th>Value</th>
+              <th>Currency exchange</th>
+              <th>Exchange rate</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>USD</td>
-              <td>{{ latestUSDValue }}</td>
+              <td>ETH/USD</td>
+              <td>{{ latestEthUsdValue }}</td>
             </tr>
             <tr>
-              <td>EUR</td>
-              <td>{{ latestEURValue }}</td>
+              <td>BTC/USD</td>
+              <td>{{ latestBtcUsdValue }}</td>
             </tr>
             <tr>
-              <td>ETH</td>
-              <td>{{ latestETHValue }}</td>
-            </tr>
-            <tr>
-              <td>BTC</td>
-              <td>{{ latestBTCValue }}</td>
+              <td>BTC/EUR</td>
+              <td>{{ latestBtcEurValue }}</td>
             </tr>
           </tbody>
         </table>
@@ -51,10 +47,9 @@ export default {
       ethUsd: [],
       btcUsd: [],
       btcEur: [],
-      latestUSDValue: 0,
-      latestEURValue: 0,
-      latestETHValue: 0,
-      latestBTCValue: 0,
+      latestEthUsdValue: null,
+      latestBtcUsdValue: null,
+      latestBtcEurValue: null,
       chart: null
     };
   },
@@ -104,14 +99,17 @@ export default {
           case "live_trades_ethusd":
             this.ethUsd.push([data.data.timestamp, data.data.price]);
             this.chart.series[0].setData(this.ethUsd);
+            this.latestEthUsdValue = data.data.price;
             break;
           case "live_trades_btcusd":
             this.btcUsd.push([data.data.timestamp, data.data.price]);
             this.chart.series[1].setData(this.btcUsd);
+            this.latestBtcUsdValue = data.data.price;
             break;
           case "live_trades_btceur":
             this.btcEur.push([data.data.timestamp, data.data.price]);
             this.chart.series[2].setData(this.btcEur);
+            this.latestBtcEurValue = data.data.price;
             break;
         }
         this.chart.redraw();
