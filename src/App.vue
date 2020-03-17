@@ -11,6 +11,9 @@
           placeholder="Search for a currency pair"
           v-model="searchedExchangeRate"
         />
+        <button @click="toggleSort()">
+          {{ sortAsc ? "Sort desc" : "Sort asc" }}
+        </button>
         <table id="ratesTable">
           <thead>
             <tr>
@@ -52,6 +55,7 @@ export default {
       latestBtcEurValue: null,
       chart: null,
       searchedExchangeRate: "",
+      sortAsc: false,
       exchangeRates: [
         { name: "ETH/USD" },
         { name: "BTC/USD" },
@@ -59,7 +63,21 @@ export default {
       ]
     };
   },
+  watch: {
+    // sortAsc watcher that sorts the exchangeRates array based on the price
+    sortAsc: function() {
+      this.exchangeRates.sort((a, b) => {
+        if (a.price === b.price) return 0;
+        if (a.price > b.price) {
+          return this.sortAsc ? 1 : -1;
+        } else {
+          return this.sortAsc ? -1 : 1;
+        }
+      });
+    }
+  },
   computed: {
+    // Computed property which returns the filtered (and presorted) exchangeRates
     filteredExchangeRates() {
       if (this.searchedExchangeRate) {
         return this.exchangeRates.filter(er => {
@@ -218,6 +236,11 @@ export default {
           }
         ]
       });
+    },
+
+    // Toggles the sorting of the exchange rates to be ascendent or descendent
+    toggleSort() {
+      this.sortAsc = !this.sortAsc;
     }
   }
 };
