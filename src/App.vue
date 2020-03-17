@@ -6,6 +6,11 @@
       <div id="chart"></div>
 
       <div id="tableWrapper">
+        <input
+          type="text"
+          placeholder="Search for a currency pair"
+          v-model="searchedExchangeRate"
+        />
         <table id="ratesTable">
           <thead>
             <tr>
@@ -14,17 +19,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>ETH/USD</td>
-              <td>{{ latestEthUsdValue }}</td>
-            </tr>
-            <tr>
-              <td>BTC/USD</td>
-              <td>{{ latestBtcUsdValue }}</td>
-            </tr>
-            <tr>
-              <td>BTC/EUR</td>
-              <td>{{ latestBtcEurValue }}</td>
+            <tr
+              v-for="exchangeRate in filteredExchangeRates"
+              :key="exchangeRate.id"
+            >
+              <td>{{ exchangeRate.name }}</td>
+              <td>{{ exchangeRate.price }}</td>
             </tr>
           </tbody>
         </table>
@@ -50,8 +50,25 @@ export default {
       latestEthUsdValue: null,
       latestBtcUsdValue: null,
       latestBtcEurValue: null,
-      chart: null
+      chart: null,
+      searchedExchangeRate: "",
+      exchangeRates: [
+        { name: "ETH/USD" },
+        { name: "BTC/USD" },
+        { name: "BTC/EUR" }
+      ]
     };
+  },
+  computed: {
+    filteredExchangeRates() {
+      if (this.searchedExchangeRate) {
+        return this.exchangeRates.filter(er => {
+          return er.name.startsWith(this.searchedExchangeRate);
+        });
+      } else {
+        return this.exchangeRates;
+      }
+    }
   },
   methods: {
     // Connects to bitstamp, subscribes to 3 channels of live trade rates
@@ -106,16 +123,19 @@ export default {
           this.ethUsd.push([data.data.timestamp, data.data.price]);
           this.chart.series[0].setData(this.ethUsd);
           this.latestEthUsdValue = data.data.price;
+          this.exchangeRates[0].price = data.data.price;
           break;
         case "live_trades_btcusd":
           this.btcUsd.push([data.data.timestamp, data.data.price]);
           this.chart.series[1].setData(this.btcUsd);
           this.latestBtcUsdValue = data.data.price;
+          this.exchangeRates[1].price = data.data.price;
           break;
         case "live_trades_btceur":
           this.btcEur.push([data.data.timestamp, data.data.price]);
           this.chart.series[2].setData(this.btcEur);
           this.latestBtcEurValue = data.data.price;
+          this.exchangeRates[2].price = data.data.price;
           break;
       }
       this.chart.redraw();
